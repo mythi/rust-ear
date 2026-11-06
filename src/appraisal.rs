@@ -134,12 +134,18 @@ impl Appraisal {
     /// incomplete.
     pub fn update_status_from_trust_vector(&mut self) {
         self.status = self
-            .trust_vector
+            .most_severe_claim_tier()
+            .unwrap_or(TrustTier::Incomplete);
+    }
+
+    /// The tier of the least trustworthy claim in the trustworthiness vector, ignoring claims in
+    /// the [`TrustTier::None`] tier
+    pub(crate) fn most_severe_claim_tier(&self) -> Option<TrustTier> {
+        self.trust_vector
             .into_iter()
             .map(|claim| claim.tier())
             .filter(|tier| *tier != TrustTier::None)
             .max()
-            .unwrap_or(TrustTier::Incomplete);
     }
 }
 
